@@ -46,7 +46,7 @@ async def get_random_message():
     rss_title = await get_random_rss_title()
     adjective = random.choice(MSG_ADJECTIVES)
     txt = f'{MSG_HEADER}\n{rss_title}'\
-          f'\n\n А {adjective} {MSG_END}'
+          f'\n\nА {adjective} {MSG_END}'
     return txt
 
 
@@ -54,5 +54,5 @@ async def get_first_message():
     rss_title = await get_first_rss_title()
     adjective = random.choice(MSG_ADJECTIVES)
     txt = f'{MSG_HEADER}\n{rss_title}'\
-          f'\n\n А {adjective} {MSG_END}'
+          f'\n\nА {adjective} {MSG_END}'
     return txt
