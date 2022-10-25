@@ -3,16 +3,15 @@ import asyncio
 import datetime
 
 import aiohttp
-from rss import get_first_rss_title, get_random_rss_title
+from msg_utils import get_random_message, get_first_message
 from config import TELEGRAM_BOT_ROOT_URL,\
-    TELEGRAM_BOT_MSG_HEADER, TELEGRAM_BOT_MSG_END,\
     TELEGRAM_RETRY_COUNT, TELEGRAM_PULL_TIMEOUT, TELEGRAM_SEND_MSG_TIMEOUT
 
 logging.basicConfig(format='%(levelname)s | %(message)s', level='INFO')
 
 
 class BubaChachaBot(object):
-    def __init__(self, token, init_chat_ids=[]):
+    def __init__(self, token, init_chat_ids=None):
         self.token = token
         self.updates_url = f'{TELEGRAM_BOT_ROOT_URL}{self.token}/getUpdates'
         self.send_message_url = f'{TELEGRAM_BOT_ROOT_URL}' \
@@ -20,7 +19,7 @@ class BubaChachaBot(object):
         self.logger = logging.getLogger(__name__)
         self.chat_onetime_ids = []
         self.chat_ids = []
-        if init_chat_ids:
+        if init_chat_ids and isinstance(init_chat_ids, list):
             self.chat_ids.extend(init_chat_ids)
 
     async def get_updates(self, update_id=None):
@@ -90,12 +89,10 @@ class BubaChachaBot(object):
         while True:
             cur_date = datetime.datetime.now()
             await self.update_chat_ids()
-            rss_title = await get_first_rss_title()
-            text = f'{TELEGRAM_BOT_MSG_HEADER}\n{rss_title}' \
-                   f'\n\n{TELEGRAM_BOT_MSG_END}'
 
             time_delta = (cur_date - start_date).total_seconds()
             if time_delta >= TELEGRAM_SEND_MSG_TIMEOUT:
+                text = await get_first_message()
                 for chat_id in self.chat_ids:
                     msg_data = {'chat_id': chat_id,
                                 'text': text, 'parse_mode': 'HTML'}
@@ -105,9 +102,7 @@ class BubaChachaBot(object):
 
             if self.chat_onetime_ids:
                 for chat_onetime_id in self.chat_onetime_ids:
-                    cur_rss_title = await get_random_rss_title()
-                    cur_text = f'{TELEGRAM_BOT_MSG_HEADER}\n{cur_rss_title}'\
-                               f'\n\n{TELEGRAM_BOT_MSG_END}'
+                    cur_text = await get_random_message()
                     msg_data = {'chat_id': chat_onetime_id,
                                 'text': cur_text, 'parse_mode': 'HTML'}
                     msg_out = await self.send_message(msg_data)

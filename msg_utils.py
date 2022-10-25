@@ -3,7 +3,8 @@ import random
 import xml.etree.ElementTree as etree
 
 import aiohttp
-from config import RSS_URL, RSS_RETRY_COUNT
+from config import RSS_URL, RSS_RETRY_COUNT, \
+    MSG_HEADER, MSG_ADJECTIVES, MSG_END
 
 
 async def fetch_rss():
@@ -39,3 +40,19 @@ async def get_random_rss_title():
         rss_title = rss_item.find('title')
         if rss_title is not None:
             return rss_title.text.strip()
+
+
+async def get_random_message():
+    rss_title = await get_random_rss_title()
+    adjective = random.choice(MSG_ADJECTIVES)
+    txt = f'{MSG_HEADER}\n{rss_title}'\
+          f'\n\n А {adjective} {MSG_END}'
+    return txt
+
+
+async def get_first_message():
+    rss_title = await get_first_rss_title()
+    adjective = random.choice(MSG_ADJECTIVES)
+    txt = f'{MSG_HEADER}\n{rss_title}'\
+          f'\n\n А {adjective} {MSG_END}'
+    return txt
