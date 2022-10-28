@@ -1,26 +1,34 @@
 import logging
 import asyncio
 import datetime
+import random
 
 import aiohttp
-from msg_utils import get_random_message, get_first_message
+from rss_utils import get_first_rss_message, get_random_rss_message
+from txt_filter import TxtFilter
 from config import TELEGRAM_BOT_ROOT_URL,\
-    TELEGRAM_RETRY_COUNT, TELEGRAM_PULL_TIMEOUT, TELEGRAM_SEND_MSG_TIMEOUT
+    TELEGRAM_RETRY_COUNT, TELEGRAM_PULL_TIMEOUT, TELEGRAM_SEND_MSG_TIMEOUT,\
+    MSG_FILTER_WORDS, MSG_WORDS_THRESHOLD, MSG_FILTER_REPLIES
 
 logging.basicConfig(format='%(levelname)s | %(message)s', level='INFO')
 
 
 class BubaChachaBot(object):
-    def __init__(self, token, init_chat_ids=None):
+    def __init__(self, token, init_chat_ids=None, init_user_ids=None):
         self.token = token
         self.updates_url = f'{TELEGRAM_BOT_ROOT_URL}{self.token}/getUpdates'
         self.send_message_url = f'{TELEGRAM_BOT_ROOT_URL}' \
                                 f'{self.token}/sendMessage'
         self.logger = logging.getLogger(__name__)
+        self.txt_filter = TxtFilter(MSG_FILTER_WORDS, MSG_WORDS_THRESHOLD)
         self.chat_onetime_ids = []
         self.chat_ids = []
         if init_chat_ids and isinstance(init_chat_ids, list):
             self.chat_ids.extend(init_chat_ids)
+        self.chat_filtered_ids = []
+        self.msg_filter_user_ids = []
+        if init_user_ids and isinstance(init_user_ids, list):
+            self.msg_filter_user_ids.extend(init_user_ids)
 
     async def get_updates(self, update_id=None):
         cnt = 0
@@ -79,7 +87,12 @@ class BubaChachaBot(object):
                         elif chat_msg == '/buba':
                             self.chat_onetime_ids.append(chat_id)
                         else:
-                            continue
+                            from_id = message_item.get('from').get('id')
+                            if from_id in self.msg_filter_user_ids:
+                                message_id = message_item.get('message_id')
+                                if self.txt_filter.is_contain(chat_msg):
+                                    self.chat_filtered_ids.append((chat_id,
+                                                                   message_id))
         if update_id:
             update_id += 1
             self.logger.info(await self.get_updates(update_id))
@@ -92,7 +105,7 @@ class BubaChachaBot(object):
 
             time_delta = (cur_date - start_date).total_seconds()
             if time_delta >= TELEGRAM_SEND_MSG_TIMEOUT:
-                text = await get_first_message()
+                text = await get_first_rss_message()
                 for chat_id in self.chat_ids:
                     msg_data = {'chat_id': chat_id,
                                 'text': text, 'parse_mode': 'HTML'}
@@ -102,12 +115,22 @@ class BubaChachaBot(object):
 
             if self.chat_onetime_ids:
                 for chat_onetime_id in self.chat_onetime_ids:
-                    cur_text = await get_random_message()
+                    cur_text = await get_random_rss_message()
                     msg_data = {'chat_id': chat_onetime_id,
                                 'text': cur_text, 'parse_mode': 'HTML'}
                     msg_out = await self.send_message(msg_data)
                     self.logger.info(msg_out)
                 self.chat_onetime_ids.clear()
+
+            if self.chat_filtered_ids:
+                for chat_item in self.chat_filtered_ids:
+                    chat_id, msg_id = chat_item
+                    msg_data = {'chat_id': chat_id, 'parse_mode': 'HTML',
+                                'reply_to_message_id': msg_id,
+                                'text': random.choice(MSG_FILTER_REPLIES)}
+                    msg_out = await self.send_message(msg_data)
+                    self.logger.info(msg_out)
+                self.chat_filtered_ids.clear()
 
             await asyncio.sleep(TELEGRAM_PULL_TIMEOUT)
 

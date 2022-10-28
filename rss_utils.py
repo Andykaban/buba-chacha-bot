@@ -42,7 +42,7 @@ async def get_random_rss_title():
             return rss_title.text.strip()
 
 
-async def get_random_message():
+async def get_random_rss_message():
     rss_title = await get_random_rss_title()
     adjective = random.choice(MSG_ADJECTIVES)
     txt = f'{MSG_HEADER}\n{rss_title}'\
@@ -50,7 +50,7 @@ async def get_random_message():
     return txt
 
 
-async def get_first_message():
+async def get_first_rss_message():
     rss_title = await get_first_rss_title()
     adjective = random.choice(MSG_ADJECTIVES)
     txt = f'{MSG_HEADER}\n{rss_title}'\
