@@ -54,7 +54,7 @@ class TxtFilter(object):
                 for symbol_txt in norm_txt:
                     if letter == symbol_txt:
                         norm_txt = norm_txt.replace(symbol_txt, key)
-        self.logger.info(norm_txt)
+        # self.logger.info(norm_txt)
 
         # Text search
         for word in self.search_words:
