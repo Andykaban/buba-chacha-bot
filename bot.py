@@ -1,14 +1,13 @@
 import logging
 import asyncio
 import datetime
-import random
 
 import aiohttp
 from rss_utils import get_first_rss_message, get_random_rss_message
 from txt_filter import TxtFilter
 from config import TELEGRAM_BOT_ROOT_URL,\
-    TELEGRAM_RETRY_COUNT, TELEGRAM_PULL_TIMEOUT, TELEGRAM_SEND_MSG_TIMEOUT,\
-    MSG_FILTER_WORDS, MSG_WORDS_THRESHOLD, MSG_FILTER_REPLIES
+    TELEGRAM_RETRY_COUNT, TELEGRAM_PULL_TIMEOUT, \
+    TELEGRAM_SEND_MSG_TIMEOUT, MSG_WORDS_THRESHOLD, MSG_FILTER_STRUCT
 
 logging.basicConfig(format='%(levelname)s | %(message)s', level='INFO')
 
@@ -20,7 +19,7 @@ class BubaChachaBot(object):
         self.send_message_url = f'{TELEGRAM_BOT_ROOT_URL}' \
                                 f'{self.token}/sendMessage'
         self.logger = logging.getLogger(__name__)
-        self.txt_filter = TxtFilter(MSG_FILTER_WORDS, MSG_WORDS_THRESHOLD)
+        self.txt_filter = TxtFilter(MSG_FILTER_STRUCT, MSG_WORDS_THRESHOLD)
         self.chat_onetime_ids = []
         self.chat_ids = []
         if init_chat_ids and isinstance(init_chat_ids, list):
@@ -90,9 +89,12 @@ class BubaChachaBot(object):
                             from_id = message_item.get('from').get('id')
                             if from_id in self.msg_filter_user_ids:
                                 message_id = message_item.get('message_id')
-                                if self.txt_filter.is_contain(chat_msg):
+                                msg_out = self.txt_filter.get_txt_message(
+                                    chat_msg)
+                                if msg_out:
                                     self.chat_filtered_ids.append((chat_id,
-                                                                   message_id))
+                                                                   message_id,
+                                                                   msg_out))
         if update_id:
             update_id += 1
             self.logger.info(await self.get_updates(update_id))
@@ -124,10 +126,10 @@ class BubaChachaBot(object):
 
             if self.chat_filtered_ids:
                 for chat_item in self.chat_filtered_ids:
-                    chat_id, msg_id = chat_item
+                    chat_id, msg_id, msg_txt = chat_item
                     msg_data = {'chat_id': chat_id, 'parse_mode': 'HTML',
                                 'reply_to_message_id': msg_id,
-                                'text': random.choice(MSG_FILTER_REPLIES)}
+                                'text': msg_txt}
                     msg_out = await self.send_message(msg_data)
                     self.logger.info(msg_out)
                 self.chat_filtered_ids.clear()

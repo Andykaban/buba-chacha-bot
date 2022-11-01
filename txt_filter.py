@@ -1,4 +1,5 @@
 import logging
+import random
 
 import Levenshtein
 
@@ -41,12 +42,12 @@ ALPHABET = {'а': ['а', 'a', '@'],
 
 class TxtFilter(object):
 
-    def __init__(self, search_words, word_threshold):
-        self.search_words = search_words
+    def __init__(self, search_data, word_threshold):
+        self.search_data = search_data
         self.word_threshold = word_threshold
         self.logger = logging.getLogger()
 
-    def is_contain(self, txt):
+    def get_txt_message(self, txt):
         # Text normalization
         norm_txt = txt.strip().lower().replace(' ', '')
         for key, val in ALPHABET.items():
@@ -56,11 +57,14 @@ class TxtFilter(object):
                         norm_txt = norm_txt.replace(symbol_txt, key)
         # self.logger.info(norm_txt)
 
-        # Text search
-        for word in self.search_words:
-            for part in range(len(norm_txt)):
-                txt_fragment = norm_txt[part:part+len(word)]
-                distance = Levenshtein.distance(txt_fragment, word)
-                if distance <= self.word_threshold * len(word):
-                    self.logger.info(f'Found {word} like by {txt_fragment}')
-                    return True
+        for search_item in self.search_data:
+            search_words = search_item.get('filter_words')
+            for word in search_words:
+                for part in range(len(norm_txt)):
+                    txt_fragment = norm_txt[part:part + len(word)]
+                    distance = Levenshtein.distance(txt_fragment, word)
+                    if distance <= self.word_threshold * len(word):
+                        self.logger.info(f'Found {word} '
+                                         f'like by {txt_fragment}')
+                        answers = search_item.get('filter_replies')
+                        return random.choice(answers)
