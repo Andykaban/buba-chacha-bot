@@ -59,11 +59,14 @@ class TxtFilter(object):
 
         for search_item in self.search_data:
             search_words = search_item.get('filter_words')
+            cur_threshold = self.word_threshold
+            if 'filter_threshold' in search_item:
+                cur_threshold = float(search_item.get('filter_threshold'))
             for word in search_words:
                 for part in range(len(norm_txt)):
                     txt_fragment = norm_txt[part:part + len(word)]
                     distance = Levenshtein.distance(txt_fragment, word)
-                    if distance <= self.word_threshold * len(word):
+                    if distance <= cur_threshold * len(word):
                         self.logger.info(f'Found {word} '
                                          f'like by {txt_fragment}')
                         answers = search_item.get('filter_replies')
