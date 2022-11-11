@@ -47,7 +47,7 @@ class TxtFilter(object):
         self.word_threshold = word_threshold
         self.logger = logging.getLogger()
 
-    def get_txt_message(self, txt):
+    def get_txt_message(self, txt, user_id=None):
         # Text normalization
         norm_txt = txt.strip().lower().replace(' ', '')
         for key, val in ALPHABET.items():
@@ -69,5 +69,10 @@ class TxtFilter(object):
                     if distance <= cur_threshold * len(word):
                         self.logger.info(f'Found {word} '
                                          f'like by {txt_fragment}')
-                        answers = search_item.get('filter_replies')
+                        answers = search_item.get('common_replies')
+                        if user_id:
+                            user_answers_key = f'{user_id}_replies'
+                            user_answers = search_item.get(user_answers_key)
+                            if user_answers:
+                                answers.extend(user_answers)
                         return random.choice(answers)

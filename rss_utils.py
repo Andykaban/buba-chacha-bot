@@ -3,22 +3,23 @@ import random
 import xml.etree.ElementTree as etree
 
 import aiohttp
-from config import RSS_URL, RSS_RETRY_COUNT, \
-    MSG_HEADER, MSG_ADJECTIVES, MSG_END
+from config import BOT_CONFIG
 
 
 async def fetch_rss():
     try_count = 0
+    rss_url = BOT_CONFIG.get('RSS_URL')
+    rss_retry_count = BOT_CONFIG.get('RSS_RETRY_COUNT')
     while True:
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.get(RSS_URL, ssl=False) as resp:
+                async with session.get(rss_url, ssl=False) as resp:
                     resp.raise_for_status()
                     return await resp.text()
         except (aiohttp.ClientResponseError,
                 aiohttp.ClientConnectionError) as exp:
             try_count += 1
-            if try_count >= RSS_RETRY_COUNT:
+            if try_count >= rss_retry_count:
                 raise exp
             await asyncio.sleep(3)
 
@@ -44,15 +45,21 @@ async def get_random_rss_title():
 
 async def get_random_rss_message():
     rss_title = await get_random_rss_title()
-    adjective = random.choice(MSG_ADJECTIVES)
-    txt = f'{MSG_HEADER}\n{rss_title}'\
-          f'\n\nА {adjective} {MSG_END}'
+    msg_header = BOT_CONFIG.get('MSG_HEADER')
+    adjective = random.choice(BOT_CONFIG.get('MSG_ADJECTIVES'))
+    msg_pretext = BOT_CONFIG.get('MSG_PRETEXT')
+    msg_end = BOT_CONFIG.get('MSG_END')
+    txt = f'{msg_header}\n{rss_title}'\
+          f'\n\n{msg_pretext} {adjective} {msg_end}'
     return txt
 
 
 async def get_first_rss_message():
     rss_title = await get_first_rss_title()
-    adjective = random.choice(MSG_ADJECTIVES)
-    txt = f'{MSG_HEADER}\n{rss_title}'\
-          f'\n\nА {adjective} {MSG_END}'
+    msg_header = BOT_CONFIG.get('MSG_HEADER')
+    adjective = random.choice(BOT_CONFIG.get('MSG_ADJECTIVES'))
+    msg_pretext = BOT_CONFIG.get('MSG_PRETEXT')
+    msg_end = BOT_CONFIG.get('MSG_END')
+    txt = f'{msg_header}\n{rss_title}' \
+          f'\n\n{{msg_pretext}} {adjective} {msg_end}'
     return txt

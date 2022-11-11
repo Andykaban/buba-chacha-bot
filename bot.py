@@ -5,9 +5,8 @@ import datetime
 import aiohttp
 from rss_utils import get_first_rss_message, get_random_rss_message
 from txt_filter import TxtFilter
-from config import TELEGRAM_BOT_ROOT_URL,\
-    TELEGRAM_RETRY_COUNT, TELEGRAM_PULL_TIMEOUT, \
-    TELEGRAM_SEND_MSG_TIMEOUT, MSG_WORDS_THRESHOLD, MSG_FILTER_STRUCT
+from config import BOT_CONFIG
+
 
 logging.basicConfig(format='%(levelname)s | %(message)s', level='INFO')
 
@@ -15,11 +14,13 @@ logging.basicConfig(format='%(levelname)s | %(message)s', level='INFO')
 class BubaChachaBot(object):
     def __init__(self, token, init_chat_ids=None, init_user_ids=None):
         self.token = token
-        self.updates_url = f'{TELEGRAM_BOT_ROOT_URL}{self.token}/getUpdates'
-        self.send_message_url = f'{TELEGRAM_BOT_ROOT_URL}' \
+        self.updates_url = f'{BOT_CONFIG["TELEGRAM_BOT_ROOT_URL"]}' \
+                           f'{self.token}/getUpdates'
+        self.send_message_url = f'{BOT_CONFIG["TELEGRAM_BOT_ROOT_URL"]}' \
                                 f'{self.token}/sendMessage'
         self.logger = logging.getLogger(__name__)
-        self.txt_filter = TxtFilter(MSG_FILTER_STRUCT, MSG_WORDS_THRESHOLD)
+        self.txt_filter = TxtFilter(BOT_CONFIG.get('MSG_FILTER_STRUCT'),
+                                    BOT_CONFIG.get('MSG_WORDS_THRESHOLD'))
         self.chat_onetime_ids = []
         self.chat_ids = []
         if init_chat_ids and isinstance(init_chat_ids, list):
@@ -32,6 +33,7 @@ class BubaChachaBot(object):
     async def get_updates(self, update_id=None):
         cnt = 0
         updates_url = self.updates_url
+        telegram_retry_count = BOT_CONFIG.get('TELEGRAM_RETRY_COUNT')
         if update_id:
             updates_url += f'?offset={update_id}'
         while True:
@@ -43,13 +45,14 @@ class BubaChachaBot(object):
             except (aiohttp.ClientResponseError,
                     aiohttp.ClientConnectionError) as exp:
                 cnt += 1
-                if cnt >= TELEGRAM_RETRY_COUNT:
+                if cnt >= telegram_retry_count:
                     self.logger.error(await resp.text())
                     raise exp
                 await asyncio.sleep(5)
 
     async def send_message(self, message):
         cnt = 0
+        telegram_retry_count = BOT_CONFIG.get('TELEGRAM_RETRY_COUNT')
         while True:
             try:
                 async with aiohttp.ClientSession() as session:
@@ -60,7 +63,7 @@ class BubaChachaBot(object):
             except (aiohttp.ClientResponseError,
                     aiohttp.ClientConnectionError) as exp:
                 cnt += 1
-                if cnt >= TELEGRAM_RETRY_COUNT:
+                if cnt >= telegram_retry_count:
                     self.logger.error(await resp.text())
                     raise exp
                 await asyncio.sleep(5)
@@ -90,7 +93,7 @@ class BubaChachaBot(object):
                             if from_id in self.msg_filter_user_ids:
                                 message_id = message_item.get('message_id')
                                 msg_out = self.txt_filter.get_txt_message(
-                                    chat_msg)
+                                    chat_msg, from_id)
                                 if msg_out:
                                     self.chat_filtered_ids.append((chat_id,
                                                                    message_id,
@@ -101,12 +104,15 @@ class BubaChachaBot(object):
 
     async def process_buba_bot(self):
         start_date = datetime.datetime.now()
+        telegram_send_msg_timeout = BOT_CONFIG.get(
+            'TELEGRAM_SEND_MSG_TIMEOUT')
+        telegram_pull_timeout = BOT_CONFIG.get('TELEGRAM_PULL_TIMEOUT')
         while True:
             cur_date = datetime.datetime.now()
             await self.update_chat_ids()
 
             time_delta = (cur_date - start_date).total_seconds()
-            if time_delta >= TELEGRAM_SEND_MSG_TIMEOUT:
+            if time_delta >= telegram_send_msg_timeout:
                 text = await get_first_rss_message()
                 for chat_id in self.chat_ids:
                     msg_data = {'chat_id': chat_id,
@@ -134,7 +140,7 @@ class BubaChachaBot(object):
                     self.logger.info(msg_out)
                 self.chat_filtered_ids.clear()
 
-            await asyncio.sleep(TELEGRAM_PULL_TIMEOUT)
+            await asyncio.sleep(telegram_pull_timeout)
 
     def bot_handler(self):
         asyncio.run(self.process_buba_bot())

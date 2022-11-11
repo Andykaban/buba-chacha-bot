@@ -17,3 +17,4 @@ tmp
 log
 /*.log
 debug.sh
+bot-config.yaml

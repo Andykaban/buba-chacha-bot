@@ -1,53 +1,20 @@
-# TELEGRAM_SETTINGS
-TELEGRAM_BOT_ROOT_URL = 'https://api.telegram.org/bot'
-TELEGRAM_RETRY_COUNT = 50
-TELEGRAM_PULL_TIMEOUT = 10
-TELEGRAM_SEND_MSG_TIMEOUT = 18000
-TELEGRAM_DEFAULT_CHAT_IDS = []
+import os
+import logging
 
-# RSS SETTINGS
-RSS_URL = 'https://lenta.ru/rss'
-RSS_RETRY_COUNT = 50
+import yaml
 
-# Message settings
-MSG_HEADER = '<b>Новости с пометкой ⚡</b>'
-MSG_ADJECTIVES = ['вонючий', 'мерзкий', 'говнистый', 'подлый',
-                  'паскудный', 'поганый', 'гнусный', '',
-                  'жалкий', 'убогий', 'никчёмный']
-MSG_END = 'бубочка все еще не завел канал про чачу...'
+logging.basicConfig(format='%(levelname)s | %(message)s', level='INFO')
+logger = logging.getLogger()
 
-# Message filer settings
-MSG_FILTER_STRUCT = [
-    {
-        'filter_words': ['вятич'],
-        'filter_replies': [
-            'Опять вятич петух закукарекал! Заместо Авроры',
-            'Кто любит пить вятич тот любит сосать хуй',
-            'Вятич, вятич - в сортах говна не разбираюсь',
-            'Вятич, КУД-КУ-ДАХ!',
-            'Опять вонючка рот раскрыл',
-            'Юринов ИльAss - хуесос и пидарас',
-            'Опять про ебаную мочу',
-            'Вятич - лучший напиток для сутулой собаки',
-            'Вятич - говно на лопате',
-            'Посмотри на вятич и на Илью. '
-            'На Илью и на вятич. Да, вятич - в унитаз!',
-            'Вятич? Нет спасибо, я не говноед',
-            'Вятич! Лучшее средство для уринотерапии'
-        ]
-    },
-{
-        'filter_words': ['топки', 'топков', 'топок', 'топоки'],
-        'filter_threshold': 0.15,
-        'filter_replies': [
-            'Топок - Илюша присел на хуёк',
-            'Топок - это «топ» но для долбоёбов',
-            'Не обращайте внимание, у него аутизм',
-            'Жопе слова не давали',
-            'Опять петух слова коверкает',
-            'Топок - ебать Илью в пупок'
-        ]
-    }
-]
-MSG_WORDS_THRESHOLD = 0.25
-MSG_FILTER_USER_IDS = []
+BOT_CONFIG = {}
+
+
+def load_config(config_file):
+    global BOT_CONFIG
+
+    if not os.path.isfile(config_file):
+        logger.error(f'Bot config file {config_file} is not found!')
+        raise OSError
+    with open(config_file) as f_in:
+        BOT_CONFIG.update(yaml.safe_load(f_in))
+
