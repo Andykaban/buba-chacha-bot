@@ -61,5 +61,5 @@ async def get_first_rss_message():
     msg_pretext = BOT_CONFIG.get('MSG_PRETEXT')
     msg_end = BOT_CONFIG.get('MSG_END')
     txt = f'{msg_header}\n{rss_title}' \
-          f'\n\n{{msg_pretext}} {adjective} {msg_end}'
+          f'\n\n{msg_pretext} {adjective} {msg_end}'
     return txt
