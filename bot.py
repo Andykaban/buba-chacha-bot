@@ -81,8 +81,11 @@ class BubaChachaBot(object):
                         chat_id = message_item.get('chat').get('id')
                         chat_msg_raw = message_item.get('text')
                         if chat_msg_raw is None:
-                            continue
+                            chat_msg_raw = message_item.get('caption')
+                            if chat_msg_raw is None:
+                                continue
                         chat_msg = chat_msg_raw.strip().lower()
+
                         if chat_msg == '/join':
                             if chat_id not in self.chat_ids:
                                 self.chat_ids.append(chat_id)
