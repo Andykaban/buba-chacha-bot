@@ -3,6 +3,7 @@ TELEGRAM_BOT_ROOT_URL: 'https://api.telegram.org/bot'
 TELEGRAM_RETRY_COUNT: 50
 TELEGRAM_PULL_TIMEOUT: 10
 TELEGRAM_SEND_MSG_TIMEOUT: 18000
+TELEGRAM_SKIP_SEND_MSG: true # Skip send message by timer
 TELEGRAM_DEFAULT_CHAT_IDS: []
 
 # RSS SETTINGS
@@ -56,6 +57,14 @@ MSG_FILTER_STRUCT:
           - 'Посмотри на вятич и на Илью. На Илью и на вятич. Да, вятич - в унитаз!'
           - 'Русич не тот кто Вятич пьёт. А кто Ильюше хуем по губам трясёт!'
           - '1) Вятич 2) Навоз 3) ИльAss - тут есть синонимы!'
+          - |
+              Жил был Вятич,
+              Жил был Илья,
+              Они поженились,
+              Получилась хуйня
+          - |
+              Как сделать так, чтобы ИльAss выглядел еще более глупо?
+              Дать ему в руку бутылку Вятича.
 
     -
       filter_words:

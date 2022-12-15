@@ -81,6 +81,7 @@ class TxtFilter(object):
                         user_answers = search_item.get(user_answers_key)
                         if user_answers:
                             answers.extend(user_answers)
+                    random.shuffle(answers)
                     return random.choice(answers)
 
     def get_txt_message_orig(self, search_item, txt, user_id=None):
@@ -110,6 +111,7 @@ class TxtFilter(object):
                         user_answers = search_item.get(user_answers_key)
                         if user_answers:
                             answers.extend(user_answers)
+                    random.shuffle(answers)
                     return random.choice(answers)
 
     def get_txt_message(self, txt, user_id=None):

@@ -110,12 +110,14 @@ class BubaChachaBot(object):
         telegram_send_msg_timeout = BOT_CONFIG.get(
             'TELEGRAM_SEND_MSG_TIMEOUT')
         telegram_pull_timeout = BOT_CONFIG.get('TELEGRAM_PULL_TIMEOUT')
+        telegram_skip_send_msg = BOT_CONFIG.get('TELEGRAM_SKIP_SEND_MSG')
         while True:
             cur_date = datetime.datetime.now()
             await self.update_chat_ids()
 
             time_delta = (cur_date - start_date).total_seconds()
-            if time_delta >= telegram_send_msg_timeout:
+            if not telegram_skip_send_msg and \
+                    time_delta >= telegram_send_msg_timeout:
                 text = await get_first_rss_message()
                 for chat_id in self.chat_ids:
                     msg_data = {'chat_id': chat_id,
