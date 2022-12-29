@@ -116,6 +116,7 @@ class TxtFilter(object):
 
     def get_txt_message(self, txt, user_id=None):
         for search_item in self.search_data:
+            message_type = search_item.get('filter_message_type')
             search_mode = search_item.get('filter_mode')
             if search_mode == 'simple':
                 txt_message = self.get_txt_message_simple(search_item,
@@ -124,4 +125,4 @@ class TxtFilter(object):
                 txt_message = self.get_txt_message_orig(search_item,
                                                         txt, user_id)
             if txt_message:
-                return txt_message
+                return txt_message, message_type

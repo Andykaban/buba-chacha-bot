@@ -18,6 +18,8 @@ class BubaChachaBot(object):
                            f'{self.token}/getUpdates'
         self.send_message_url = f'{BOT_CONFIG["TELEGRAM_BOT_ROOT_URL"]}' \
                                 f'{self.token}/sendMessage'
+        self.send_video_url = f'{BOT_CONFIG["TELEGRAM_BOT_ROOT_URL"]}'\
+                              f'{self.token}/sendVideo'
         self.logger = logging.getLogger(__name__)
         self.txt_filter = TxtFilter(BOT_CONFIG.get('MSG_FILTER_STRUCT'),
                                     BOT_CONFIG.get('MSG_WORDS_THRESHOLD'))
@@ -53,10 +55,13 @@ class BubaChachaBot(object):
     async def send_message(self, message):
         cnt = 0
         telegram_retry_count = BOT_CONFIG.get('TELEGRAM_RETRY_COUNT')
+        message_url = self.send_message_url
+        if 'video' in message:
+            message_url = self.send_video_url
         while True:
             try:
                 async with aiohttp.ClientSession() as session:
-                    async with session.post(self.send_message_url,
+                    async with session.post(message_url,
                                             json=message, ssl=False) as resp:
                         resp.raise_for_status()
                         return await resp.json()
@@ -95,12 +100,14 @@ class BubaChachaBot(object):
                             from_id = message_item.get('from').get('id')
                             if from_id in self.msg_filter_user_ids:
                                 message_id = message_item.get('message_id')
-                                msg_out = self.txt_filter.get_txt_message(
+                                msg_raw = self.txt_filter.get_txt_message(
                                     chat_msg, from_id)
-                                if msg_out:
-                                    self.chat_filtered_ids.append((chat_id,
-                                                                   message_id,
-                                                                   msg_out))
+                                if msg_raw:
+                                    msg_out_item = {'chat_id': chat_id,
+                                                    'message_id': message_id,
+                                                    'msg_out': msg_raw[0],
+                                                    'msg_type': msg_raw[1]}
+                                    self.chat_filtered_ids.append(msg_out_item)
         if update_id:
             update_id += 1
             self.logger.info(await self.get_updates(update_id))
@@ -137,10 +144,17 @@ class BubaChachaBot(object):
 
             if self.chat_filtered_ids:
                 for chat_item in self.chat_filtered_ids:
-                    chat_id, msg_id, msg_txt = chat_item
-                    msg_data = {'chat_id': chat_id, 'parse_mode': 'HTML',
-                                'reply_to_message_id': msg_id,
-                                'text': msg_txt}
+                    if chat_item.get('msg_type') == 'video':
+                        msg_data = {'chat_id': chat_item.get('chat_id'),
+                                    'reply_to_message_id':
+                                        chat_item.get('message_id'),
+                                    'video': chat_item.get('msg_out')}
+                    else:
+                        msg_data = {'chat_id': chat_item.get('chat_id'),
+                                    'reply_to_message_id':
+                                        chat_item.get('message_id'),
+                                    'parse_mode': 'HTML',
+                                    'text': chat_item.get('msg_out')}
                     msg_out = await self.send_message(msg_data)
                     self.logger.info(msg_out)
                 self.chat_filtered_ids.clear()
