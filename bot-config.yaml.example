@@ -93,4 +93,4 @@ MSG_FILTER_STRUCT:
           - 'навоз'
       filter_message_type: 'video'
       common_replies:
-          - 'CgACAgIAAxkBAAIPKGOt7_ORh3iWkwoyp2cPxSliyBPgAAJXJQACczb4S7n7C70Mi43LLAQ'
+          - 'CgACAgIAAx0CVjhmuwABA1G7Y64QnAdHlPTQjgSdyXJIpZrgo1EAAlclAAJzNvhL5OgcbnI0FK0sBA'
