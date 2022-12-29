@@ -42,13 +42,14 @@ class BubaChachaBot(object):
             try:
                 async with aiohttp.ClientSession() as session:
                     async with session.get(updates_url, ssl=False) as resp:
+                        json_out = await resp.json()
                         resp.raise_for_status()
-                        return await resp.json()
+                        return json_out
             except (aiohttp.ClientResponseError,
                     aiohttp.ClientConnectionError) as exp:
                 cnt += 1
                 if cnt >= telegram_retry_count:
-                    self.logger.error(await resp.text())
+                    self.logger.error(json_out)
                     raise exp
                 await asyncio.sleep(5)
 
@@ -63,14 +64,15 @@ class BubaChachaBot(object):
                 async with aiohttp.ClientSession() as session:
                     async with session.post(message_url,
                                             json=message, ssl=False) as resp:
+                        json_out = await resp.json()
                         resp.raise_for_status()
-                        return await resp.json()
+                        return json_out
             except (aiohttp.ClientResponseError,
                     aiohttp.ClientConnectionError) as exp:
                 cnt += 1
                 if cnt >= telegram_retry_count:
-                    self.logger.error(await resp.text())
-                    raise exp
+                    self.logger.error(json_out)
+                    return
                 await asyncio.sleep(5)
 
     async def update_chat_ids(self):
