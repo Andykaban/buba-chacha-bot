@@ -2,8 +2,8 @@
 TELEGRAM_BOT_ROOT_URL: 'https://api.telegram.org/bot'
 TELEGRAM_RETRY_COUNT: 50
 TELEGRAM_PULL_TIMEOUT: 10
-TELEGRAM_SEND_MSG_TIMEOUT: 18000
-TELEGRAM_SKIP_SEND_MSG: true # Skip send message by timer
+TELEGRAM_SEND_MSG_TIMEOUT: 3600
+TELEGRAM_SKIP_SEND_MSG: false # Skip send message by timer
 TELEGRAM_DEFAULT_CHAT_IDS: []
 
 # RSS SETTINGS
@@ -13,19 +13,19 @@ RSS_RETRY_COUNT: 50
 # Message settings
 MSG_HEADER: '<b>Новости с пометкой ⚡</b>'
 MSG_ADJECTIVES:
-    - 'вонючий'
-    - 'мерзкий'
-    - 'говнистый'
-    - 'подлый'
-    - 'паскудный'
-    - 'поганый'
-    - 'гнусный'
-    - ''
-    - 'жалкий'
-    - 'убогий'
-    - 'никчёмный'
+    - 'прекрасный'
+    - 'беловласый'
+    - 'сексуальный'
+    - 'восхитительный'
+    - 'остроумный'
+    - 'неотразимый'
+    - 'ослепительный'
+    - 'утончённый'
+    - 'любвиобильный'
+    - 'изысканный'
+    - 'обворожительный'
 MSG_PRETEXT: 'A'
-MSG_END: 'бубочка все еще не завел канал про чачу...'
+MSG_END: 'именниник бубочка все еще не завел канал про чачу...'
 
 # Message filer settings
 MSG_WORDS_THRESHOLD: 0.25
