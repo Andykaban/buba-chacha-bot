@@ -78,9 +78,9 @@ class TxtFilter(object):
                     answers = search_item.get('common_replies').copy()
                     if user_id:
                         user_answers_key = f'{user_id}_replies'
-                        user_answers = search_item.get(user_answers_key).copy()
+                        user_answers = search_item.get(user_answers_key)
                         if user_answers:
-                            answers.extend(user_answers)
+                            answers.extend(user_answers.copy())
                     random.shuffle(answers)
                     txt_result = random.choice(answers)
                     answers.clear()
@@ -110,9 +110,9 @@ class TxtFilter(object):
                     answers = search_item.get('common_replies').copy()
                     if user_id:
                         user_answers_key = f'{user_id}_replies'
-                        user_answers = search_item.get(user_answers_key).copy()
+                        user_answers = search_item.get(user_answers_key)
                         if user_answers:
-                            answers.extend(user_answers)
+                            answers.extend(user_answers.copy())
                     random.shuffle(answers)
                     txt_result = random.choice(answers)
                     answers.clear()
