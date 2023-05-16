@@ -137,7 +137,8 @@ class BubaChachaBot(object):
                         message_id = message_item.get('message_id')
                         if from_id in self.photo_user_ids:
                             photo = message_item.get('photo')
-                            if photo:
+                            is_forward = message_item.get('forward_from_chat')
+                            if photo and not is_forward:
                                 photo_item = photo[-1]
                                 photo_out_item = {'from_chat_id': chat_id,
                                                   'message_id': message_id,
