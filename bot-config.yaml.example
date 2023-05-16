@@ -1,5 +1,6 @@
 # GLOBAL TELEGRAM_SETTINGS
 TELEGRAM_BOT_ROOT_URL: 'https://api.telegram.org/bot'
+TELEGRAM_BOT_FILE_URL: 'https://api.telegram.org/file/bot'
 TELEGRAM_RETRY_COUNT: 50
 TELEGRAM_PULL_TIMEOUT: 10
 TELEGRAM_SEND_MSG_TIMEOUT: 18000
@@ -95,3 +96,9 @@ MSG_FILTER_STRUCT:
       filter_message_type: 'video'
       common_replies:
           - 'BAACAgIAAxkBAAICsmPIMd7dIOtxEZ5nHSzoeDy1rAlaAAJvJQAC1MQwSTroPNx6m3dULQQ'
+
+PHOTO_YOLO_USER_IDS: []
+PHOTO_YOLO_CHAT_IDS: []
+PHOTO_YOLO_THRESHOLD: 0.65
+PHOTO_YOLO_MODEL: 'models/yolov8l.pt'
+PHOTO_YOLO_CLASSES: [39, 40, 41, 42, 43, 44]
