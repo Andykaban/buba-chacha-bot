@@ -97,6 +97,17 @@ MSG_FILTER_STRUCT:
       common_replies:
           - 'BAACAgIAAxkBAAICsmPIMd7dIOtxEZ5nHSzoeDy1rAlaAAJvJQAC1MQwSTroPNx6m3dULQQ'
 
+    - filter_words:
+          - 'скип'
+      filter_threshold: 0.15
+      common_replies:
+          - 'Анус себе скипни пес!'
+          - 'Слово скип только опущенец говорит'
+      242378512_replies:
+          - 'Скип. у Ильи в очке полип'
+          - 'СКИП - Сральные Конвульсии Ильюшки педераста'
+          - 'Скип. У ИльAssa пипирка не стоит'
+
 PHOTO_YOLO_USER_IDS: []
 PHOTO_YOLO_CHAT_IDS: []
 PHOTO_YOLO_THRESHOLD: 0.65
